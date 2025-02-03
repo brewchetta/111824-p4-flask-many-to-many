@@ -2,7 +2,7 @@
 
 from flask import request
 from config import app, db
-from models import ???
+from models import Owner, Pet, Shelter
 
 # ROUTES #######################
 

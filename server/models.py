@@ -17,7 +17,7 @@ class Owner(db.Model, SerializerMixin):
 
     # RELATIONSHIPS
 
-    pets = db.relationship('Pet', back_populates='owner')
+    pets = db.relationship('Pet', back_populates='owner', cascade='all, delete-orphan')
     shelters = association_proxy('pets', 'shelter')
 
     # VALIDATIONS
@@ -26,8 +26,12 @@ class Owner(db.Model, SerializerMixin):
     def validate_name(self, key, new_value):
         if not len(new_value) >= 1:
             raise ValueError('Owner name must be at least 1 character')
-        return new_value
+        return new_value.title()
     
+    # SERIALIZER
+
+    serialize_rules = ('-pets.owner',)
+
 class Shelter(db.Model, SerializerMixin):
     
     __tablename__ = 'shelters_table'
@@ -49,6 +53,10 @@ class Shelter(db.Model, SerializerMixin):
             raise ValueError(f'Shelter {key} must be at least 1 character')
         return new_value
     
+    # SERIALIZER
+
+    serialize_rules = ('-pets.shelter',)
+
 class Pet(db.Model, SerializerMixin):
 
     __tablename__ = 'pets_table'
@@ -71,3 +79,7 @@ class Pet(db.Model, SerializerMixin):
         if not len(new_value) >= 1:
             raise ValueError(f'Pet {key} must be at least 1 character')
         return new_value
+    
+    # SERIALIZER
+
+    serialize_rules = ('-owner.pets', '-shelter.pets')
